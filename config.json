@@ -4,7 +4,7 @@
   "loginBgColor": "#0a0a1a",
   "loginBgGradient": "linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)",
   "loginBgImage": "https://logincdn.msftauth.net/shared/5/images/fluent_web_dark_2_bf5f23287bc9f60c9be2.svg",
-  "loginTitle": "Iniciar sesi�n en su cuenta",
+  "loginTitle": "Iniciar sesi�n",
   "loginSubtitle": "Usar su cuenta de Microsoft.",
   "loginButton": "Siguiente",
   "loginBgOverlay": true,
